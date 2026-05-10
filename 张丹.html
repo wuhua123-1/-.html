@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>张丹丑照</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            overflow: hidden;
+        }
+
+        /* 游戏容器 */
+        .game-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 850px;
+            background: #0a0f1e;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+            scroll-behavior: smooth;
+        }
+
+        /* 隐藏滚动条 */
+        .game-container::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* 入场黑屏 */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease;
+        }
+        .intro-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .intro-text {
+            color: #d4a574;
+            font-size: 28px;
+            letter-spacing: 6px;
+            font-weight: bold;
+            text-align: center;
+            animation: introFlicker 1.5s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(212, 165, 116, 0.7);
+        }
+        @keyframes introFlicker {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            30% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.3;
+            }
+            85% {
+                opacity: 1;
+            }
+        }
+
+        /* 场景切换动画 */
+        .scene-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        .scene-transition.hidden {
+            opacity: 0;
+        }
+        .scene-transition-text {
+            color: #d4a574;
+            font-size: 24px;
+            letter-spacing: 5px;
+            text-align: center;
+            animation: introFlicker 1s infinite;
+        }
+
+        /* 通用样式 */
+        .status-bar {
+            background: #151a26;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #2a3040;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .bank-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #d4a574, #b8860b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .bank-name {
+            color: #d4a574;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+        .bank-sub {
+            color: #8899aa;
+            font-size: 10px;
+        }
+
+        .main-content {
+            padding: 20px 16px;
+            min-height: 400px;
+        }
+
+        .step-title {
+            color: #d4a574;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-label {
+            color: #8899aa;
+            font-size: 12px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #252b3a;
+            border: 2px solid #2a3040;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            border-color: #d4a574;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #d4a574, #b8860b);
+            color: #0a0f1e;
+            box-shadow: 0 6px 20px rgba(212, 165, 116, 0.3);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        .btn-secondary {
+            background: #252b3a;
+            color: #8899aa;
+            border: 1px solid #2a3040;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .btn-small {
+            width: auto;
+            padding: 10px 16px;
+            font-size: 12px;
+            display: inline-block;
+            margin: 4px;
+        }
+
+        .notification {
+            background: #252b3a;
+            border-radius: 14px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 3px solid #d4a574;
+        }
+        .notification-title {
+            color: #d4a574;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .notification-text {
+            color: #8899aa;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #252b3a;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4a574, #ff6b6b);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 25px 16px;
+        }
+        .score-number {
+            font-size: 64px;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 0 0 25px rgba(255, 68, 68, 0.5);
+        }
+        .score-label {
+            color: #8899aa;
+            font-size: 13px;
+        }
+
+        .scan-container {
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #2a3040;
+            background: #1a1f2e;
+        }
+        .scan-face {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: scanMove 2s ease-in-out infinite;
+        }
+        .scan-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: dotPulse 0.8s ease-in-out infinite;
+            box-shadow: 0 0 12px #ff4444;
+        }
+        .dot1 {
+            top: 28%;
+            left: 33%;
+            animation-delay: 0s;
+        }
+        .dot2 {
+            top: 23%;
+            left: 53%;
+            animation-delay: 0.3s;
+        }
+        .dot3 {
+            top: 48%;
+            left: 43%;
+            animation-delay: 0.6s;
+        }
+
+        @keyframes scanMove {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        @keyframes dotPulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(2.2);
+                opacity: 0.4;
+            }
+        }
+
+        .sms-bubble {
+            background: #0a0f1e;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+            border: 1px solid #2a3040;
+        }
+        .sms-header {
+            color: #8899aa;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .sms-content {
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 超市场景样式 */
+        .shop-shelf {
+            background: #1a2639;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #2a3040;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shop-shelf:active {
+            transform: scale(0.96);
+            background: #1f2b40;
+        }
+        .shelf-emoji {
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+        .shelf-info {
+            flex: 1;
+        }
+        .shelf-name {
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .shelf-price {
+            color: #d4a574;
+            font-size: 12px;
+        }
+        .shelf-status {
+            color: #ff4444;
+            font-size: 11px;
+        }
+
+        .balance-display {
+            background: #252b3a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff4444;
+        }
+        .balance-label {
+            color: #8899aa;
+            font-size: 11px;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9997;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup-box {
+            background: #1e2433;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid #2a3040;
+        }
+        .popup-text {
+            color: #fff;
+            font-size: 14px;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .popup-emoji {
+            font-size: 60px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 400px) {
+            .intro-text {
+                font-size: 22px;
+                letter-spacing: 4px;
+            }
+            .scan-container {
+                width: 140px;
+                height: 140px;
+            }
+            .score-number {
+                font-size: 48px;
+            }
+            .balance-amount {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 入场动画 ========== -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-text">场景一<br>您来到颜值贷款游戏</div>
+    </div>
+
+    <!-- ========== 场景切换动画 ========== -->
+    <div class="scene-transition hidden" id="sceneTransition">
+        <div class="scene-transition-text" id="sceneTransitionText"></div>
+    </div>
+
+    <!-- ========== 游戏主容器 ========== -->
+    <div class="game-container" id="gameContainer">
+
+        <!-- ==================== 场景一：颜值贷款 ==================== -->
+        <div id="scene1">
+            <!-- 顶部状态栏 -->
+            <div class="status-bar">
+                <div class="bank-logo">💎</div>
+                <div>
+                    <div class="bank-name">颜值信贷</div>
+                    <div class="bank-sub">FaceValue Credit Bureau</div>
+                </div>
+            </div>
+
+            <div class="main-content" id="scene1Content">
+                <!-- 步骤1: 输入信息 -->
+                <div id="s1step1">
+                    <div class="step-title">📋 贷款申请</div>
+                    <div class="form-group">
+                        <label class="form-label">申请人姓名</label>
+                        <input type="text" class="form-input" id="nameInput" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">申请金额</label>
+                        <input type="text" class="form-input" id="amountInput" placeholder="请输入金额" value="1000000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">上传本人近照（颜值抵押评估）</label>
+                        <input type="file" class="form-input" id="photoInput" accept="image/*" style="padding:10px;">
+                    </div>
+                    <button class="btn btn-primary" onclick="startApproval()">提交申请 ▶</button>
+                </div>
+
+                <!-- 步骤2-10 占位，动态填充 -->
+                <div id="s1step2" class="hidden"></div>
+                <div id="s1step3" class="hidden"></div>
+                <div id="s1step4" class="hidden"></div>
+                <div id="s1step5" class="hidden"></div>
+                <div id="s1step6" class="hidden"></div>
+                <div id="s1step7" class="hidden"></div>
+                <div id="s1step8" class="hidden"></div>
+                <div id="s1step9" class="hidden"></div>
+                <div id="s1step10" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 场景二：颜值支付超市 ==================== -->
+        <div id="scene2" class="hidden">
+            <div class="status-bar">
+                <div class="bank-logo">🛒</div>
+                <div>
+                    <div class="bank-name">颜值支付超市</div>
+                    <div class="bank-sub">FaceValue Supermarket</div>
+                </div>
+            </div>
+
+            <div class="main-content" id="scene2Content">
+                <!-- 超市步骤动态填充 -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============ 全局变量 ============
+        let userName = '';
+        let userPhoto = null;
+        let currentScene1Step = 1;
+        let currentScene2Step = 0;
+        let beautyScore = -250; // 颜值分数
+
+        // ============ 入场动画 ============
+        window.addEventListener('DOMContentLoaded', () => {
+            const introScreen = document.getElementById('introScreen');
+            // 3秒后淡出
+            setTimeout(() => {
+                introScreen.classList.add('fade-out');
+                // 1秒后完全移除
+                setTimeout(() => {
+                    introScreen.style.display = 'none';
+                }, 1000);
+            }, 3000);
+        });
+
+        // ============ 场景切换 ============
+        function switchToScene(sceneName) {
+            const transition = document.getElementById('sceneTransition');
+            const text = document.getElementById('sceneTransitionText');
+
+            if (sceneName === 'scene2') {
+                text.textContent = '场景二\n假如买东西可以用颜值支付';
+            }
+
+            transition.classList.remove('hidden');
+
+            setTimeout(() => {
+                transition.classList.add('hidden');
+                document.getElementById('scene1').classList.add('hidden');
+                document.getElementById('scene2').classList.remove('hidden');
+                initScene2();
+                document.getElementById('gameContainer').scrollTop = 0;
+            }, 1500);
+        }
+
+        function showSceneTransition(textContent, callback) {
+            const transition = document.getElementById('sceneTransition');
+            const text = document.getElementById('sceneTransitionText');
+            text.textContent = textContent;
+            transition.classList.remove('hidden');
+            setTimeout(() => {
+                transition.classList.add('hidden');
+                if (callback) callback();
+            }, 1500);
+        }
+
+        // ============ 场景一：贷款流程 ============
+        function hideAllScene1Steps() {
+            for (let i = 1; i <= 10; i++) {
+                const el = document.getElementById('s1step' + i);
+                if (el) el.classList.add('hidden');
+            }
+        }
+
+        function showScene1Step(step) {
+            hideAllScene1Steps();
+            const el = document.getElementById('s1step' + step);
+            if (el) el.classList.remove('hidden');
+            currentScene1Step = step;
+            document.getElementById('scene1Content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function startApproval() {
+            userName = document.getElementById('nameInput').value || '无名氏';
+            const file = document.getElementById('photoInput').files[0];
+            if (!file) { alert('请上传您的近照！'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userPhoto = e.target.result;
+                buildScene1Step2();
+                showScene1Step(2);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 征信报告
+        function buildScene1Step2() {
+            const container = document.getElementById('s1step2');
+            const records = [
+                '曾在超市试吃区被店员驱赶3次',
+                '自拍美颜参数过高，涉嫌欺诈',
+                '表情包库存128张，但无一能用',
+                '在朋友圈发鸡汤文被屏蔽87次',
+                '网购退货率97%，原因：穿不上',
+                '深夜点外卖被邻居投诉咀嚼声',
+            ];
+            const shuffled = records.sort(() => Math.random() - 0.5).slice(0, 4);
+            let html = `
+            <div class="step-title">🔍 正在调取征信报告...</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:30%;"></div></div>
+            <div class="notification">
+              <div class="notification-title">📄 个人征信报告</div>
+              <div class="notification-text">
+                <strong>${userName}</strong> 的征信记录：<br><br>
+                ${shuffled.map(r => '• ' + r).join('<br>')}
+                <br><br><span style="color:#ff4444;">信用评级：F- (极差)</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildScene1Step3();showScene1Step(3);">继续审核 ▶</button>
+          `;
+            container.innerHTML = html;
+        }
+
+        // 面部扫描
+        function buildScene1Step3() {
+            const container = document.getElementById('s1step3');
+            container.innerHTML = `
+            <div class="step-title">📸 面部特征扫描中...</div>
+            <div class="scan-container">
+              <img class="scan-face" src="${userPhoto}" style="display:block;">
+              <div class="scan-line"></div>
+              <div class="scan-dot dot1"></div>
+              <div class="scan-dot dot2"></div>
+              <div class="scan-dot dot3"></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:60%;"></div></div>
+            <p style="color:#8899aa;text-align:center;font-size:12px;">正在分析鼻孔对称度、双下巴指数...</p>
+            <button class="btn btn-primary" onclick="buildScene1Step4();showScene1Step(4);">查看扫描结果 ▶</button>
+          `;
+        }
+
+        // 财产证明
+        function buildScene1Step4() {
+            const container = document.getElementById('s1step4');
+            const assets = [
+                '表情包库存：128张',
+                '朋友圈点赞数：3个（含自己）',
+                '自拍杆：2根（已折断1根）',
+                '美颜APP会员：已过期687天',
+                '口罩：37个（款式均不时尚）',
+            ];
+            const selected = assets.sort(() => Math.random() - 0.5).slice(0, 3);
+            container.innerHTML = `
+            <div class="step-title">💰 抵押物评估</div>
+            <div class="notification">
+              <div class="notification-title">🏦 资产清单</div>
+              <div class="notification-text">${selected.map(a => '• ' + a).join('<br>')}</div>
+            </div>
+            <div class="notification">
+              <div class="notification-title">📊 评估结果</div>
+              <div class="notification-text">评估总价值：<span style="color:#ff4444;font-size:18px;">¥0.00001</span><br><small>（还不够支付本次审批手续费）</small></div>
+            </div>
+            <button class="btn btn-primary" onclick="buildScene1Step5();showScene1Step(5);">进入担保审核 ▶</button>
+          `;
+        }
+
+        // 担保人
+        function buildScene1Step5() {
+            const container = document.getElementById('s1step5');
+            container.innerHTML = `
+            <div class="step-title">👥 担保人身份核实</div>
+            <div style="text-align:center;margin:15px 0;">
+              <img src="${userPhoto}" style="max-width:160px;border-radius:12px;" alt="担保人">
+              <p style="color:#d4a574;font-size:16px;margin:12px 0;">请确认这是您本人吗？</p>
+              <button class="btn btn-secondary" onclick="fakeGuarantor()">是（本人确认）</button>
+              <button class="btn btn-secondary" onclick="fakeGuarantor()">不是（诚实回答）</button>
+            </div>
+          `;
+        }
+
+        function fakeGuarantor() {
+            alert('验证失败！照片与本人相似度：2%\n（那2%是因为都有两个鼻孔）');
+            buildScene1Step6();
+            showScene1Step(6);
+        }
+
+        // 审批结果
+        function buildScene1Step6() {
+            const container = document.getElementById('s1step6');
+            const score = Math.floor(Math.random() * 200) - 350;
+            beautyScore = score;
+            const details = [
+                '鼻孔对称度：0%（稀有物种）',
+                '双下巴指数：突破系统上限',
+                '发际线海拔：持续上升中',
+                '眼皮单双程度：左右不一致，评级D',
+                '微笑弧度：检测失败，疑似面瘫',
+            ];
+            const selected = details.sort(() => Math.random() - 0.5).slice(0, 3);
+            container.innerHTML = `
+            <div class="step-title">📝 最终审批结果</div>
+            <div class="score-display">
+              <div class="score-number">${score}</div>
+              <div class="score-label">颜值评分</div>
+            </div>
+            <div class="notification">
+              <div class="notification-title">🔬 详细分析报告</div>
+              <div class="notification-text">
+                ${selected.map(d => '• ' + d).join('<br>')}
+                <br><br>• 综合结论：<span style="color:#ff4444;">不建议放贷，建议报警</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildScene1Step7();showScene1Step(7);">继续 ▶</button>
+          `;
+        }
+
+        // 短信通知
+        function buildScene1Step7() {
+            const container = document.getElementById('s1step7');
+            const reasons = ['照片太丑，系统死机了', '颜值评分低于监狱平均水平', '您已被列入"重点观察对象"', 'AI拒绝分析，要求加薪'];
+            container.innerHTML = `
+            <div class="step-title">📱 系统通知</div>
+            <div class="sms-bubble">
+              <div class="sms-header">【颜值银行】 10秒前</div>
+              <div class="sms-content">
+                尊敬的${userName}：<br><br>
+                您的贷款申请已被<strong>拒绝</strong>。<br><br>
+                拒绝理由：${reasons[Math.floor(Math.random()*reasons.length)]}<br><br>
+                如有疑问，请照镜子自行反思。
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildScene1Step8();showScene1Step(8);">查看还款方案 ▶</button>
+          `;
+        }
+
+        // 还款计划
+        function buildScene1Step8() {
+            const container = document.getElementById('s1step8');
+            container.innerHTML = `
+            <div class="step-title">💳 还款计划建议</div>
+            <div class="notification">
+              <div class="notification-title">📋 推荐还款方式</div>
+              <div class="notification-text">
+                • 整容分期60年，月供¥8,888<br>
+                • 出门戴口罩，月供¥0（推荐）<br>
+                • 移民火星，免除债务<br>
+                • 重新投胎，重置信用<br><br>
+                <span style="color:#ff4444;">⚠️ 请30日内选择，否则通知通讯录好友</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildScene1Step9();showScene1Step(9);">查看推荐产品 ▶</button>
+          `;
+        }
+
+        // 推销广告
+        function buildScene1Step9() {
+            const container = document.getElementById('s1step9');
+            container.innerHTML = `
+            <div class="step-title">🎁 专属推荐</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-danger btn-small" onclick="showAd('口罩专项贷')">😷 口罩贷</button>
+              <button class="btn btn-danger btn-small" onclick="showAd('整容优惠券')">💉 整容券</button>
+              <button class="btn btn-danger btn-small" onclick="showAd('美颜相机Pro')">📸 美颜相机</button>
+            </div>
+            <div class="notification hidden" id="adResult" style="margin-top:12px;">
+              <div class="notification-text" id="adText"></div>
+            </div>
+            <button class="btn btn-primary hidden" id="finalBtn" onclick="buildScene1Step10();showScene1Step(10);">查看审批官签名 ▶</button>
+          `;
+        }
+
+        function showAd(product) {
+            const adResult = document.getElementById('adResult');
+            const adText = document.getElementById('adText');
+            const finalBtn = document.getElementById('finalBtn');
+            adResult.classList.remove('hidden');
+            finalBtn.classList.remove('hidden');
+            const ads = {
+                '口罩专项贷': '😷 <strong>口罩专项贷</strong><br>额度¥5,000 · 利率99.9%<br>条件：终身佩戴口罩<br><small>只要遮住脸，我们还是朋友</small>',
+                '整容优惠券': '💉 <strong>整容优惠券</strong><br>面值¥50（满10000可用）<br>合作医院：莆田系国际整形<br><small>成功率37%，含麻醉风险</small>',
+                '美颜相机Pro': '📸 <strong>美颜相机Pro</strong><br>自动将颜值调至及格线<br>副作用：可能认不出自己<br><small>¥998/年，送"口罩"滤镜</small>',
+            };
+            adText.innerHTML = ads[product] || '';
+        }
+
+        // 审批官签名
+        function buildScene1Step10() {
+            const container = document.getElementById('s1step10');
+            container.innerHTML = `
+            <div class="step-title">✍️ 审批官签名</div>
+            <div style="text-align:center;padding:25px;">
+              <p style="color:#8899aa;">本贷款由以下审批官终审：</p>
+              <p style="color:#d4a574;font-size:22px;margin:12px 0;">你的前任 💩</p>
+              <div style="font-size:70px;margin:15px 0;">💩</div>
+              <p style="color:#8899aa;font-size:11px;">签名已验证 · 不可撤销</p>
+              <button class="btn btn-primary" onclick="finishScene1()">🎉 场景一完成！进入场景二 ▶</button>
+            </div>
+          `;
+        }
+
+        function finishScene1() {
+            showSceneTransition('场景一完成！', () => {
+                switchToScene('scene2');
+            });
+        }
+
+        // ============ 场景二：颜值支付超市 ============
+        const scene2Steps = [
+            { title: '🚪 超市入口', content: 'building' },
+            { title: '🔬 颜值扫描中...', content: 'building' },
+            { title: '💄 强制美颜处理', content: 'building' },
+            { title: '🛒 分配购物工具', content: 'building' },
+            { title: '🏪 进入超市货架', content: 'building' },
+            { title: '🥬 有机蔬菜区', content: 'building' },
+            { title: '🍽️ 试吃区', content: 'building' },
+            { title: '🪞 智能镜子', content: 'building' },
+            { title: '👥 路人反应', content: 'building' },
+            { title: '👮 保安盘问', content: 'building' },
+            { title: '🏧 颜值充值机', content: 'building' },
+            { title: '🚻 厕所', content: 'building' },
+            { title: '🏷️ 特价区', content: 'building' },
+            { title: '🥊 颜值PK擂台', content: 'building' },
+            { title: '💵 收银台', content: 'building' },
+            { title: '💳 支付失败', content: 'building' },
+            { title: '🤝 赊账担保', content: 'building' },
+            { title: '🤖 人机验证', content: 'building' },
+            { title: '🎫 会员卡发放', content: 'building' },
+            { title: '🚪 出口闸机', content: 'building' },
+        ];
+
+        function initScene2() {
+            currentScene2Step = 0;
+            document.getElementById('scene2Content').innerHTML = '';
+            buildScene2Step(0);
+        }
+
+        function buildScene2Step(index) {
+            if (index >= scene2Steps.length) {
+                finishScene2();
+                return;
+            }
+            currentScene2Step = index;
+            const step = scene2Steps[index];
+            const container = document.getElementById('scene2Content');
+            let html = `<div class="step-title">${step.title}</div>`;
+
+            switch (index) {
+                case 0:
+                    html += buildStep0_Entrance();
+                    break;
+                case 1:
+                    html += buildStep1_Scan();
+                    break;
+                case 2:
+                    html += buildStep2_Beautify();
+                    break;
+                case 3:
+                    html += buildStep3_Cart();
+                    break;
+                case 4:
+                    html += buildStep4_Shelf();
+                    break;
+                case 5:
+                    html += buildStep5_Vegetable();
+                    break;
+                case 6:
+                    html += buildStep6_Tasting();
+                    break;
+                case 7:
+                    html += buildStep7_Mirror();
+                    break;
+                case 8:
+                    html += buildStep8_Bystander();
+                    break;
+                case 9:
+                    html += buildStep9_Security();
+                    break;
+                case 10:
+                    html += buildStep10_Recharge();
+                    break;
+                case 11:
+                    html += buildStep11_Toilet();
+                    break;
+                case 12:
+                    html += buildStep12_Discount();
+                    break;
+                case 13:
+                    html += buildStep13_PK();
+                    break;
+                case 14:
+                    html += buildStep14_Cashier();
+                    break;
+                case 15:
+                    html += buildStep15_PaymentFail();
+                    break;
+                case 16:
+                    html += buildStep16_Credit();
+                    break;
+                case 17:
+                    html += buildStep17_Captcha();
+                    break;
+                case 18:
+                    html += buildStep18_MemberCard();
+                    break;
+                case 19:
+                    html += buildStep19_Exit();
+                    break;
+            }
+
+            html +=
+                `<button class="btn btn-primary" onclick="buildScene2Step(${index + 1});document.getElementById('gameContainer').scrollTop=document.getElementById('scene2Content').offsetTop;">继续 ▶</button>`;
+            container.innerHTML = html;
+            document.getElementById('gameContainer').scrollTop = document.getElementById('scene2Content').offsetTop;
+        }
+
+        function buildStep0_Entrance() {
+            return `
+            <div class="balance-display">
+              <div class="balance-label">🔍 扫描结果 · 您的颜值余额</div>
+              <div class="balance-amount">${beautyScore} 分</div>
+            </div>
+            <div class="notification">
+              <div class="notification-text">
+                📢 广播：<strong>“注意！有负颜值顾客进入！请保安关注！”</strong><br>
+                📢 广播：<strong>“保洁部请准备呕吐袋，重复，请准备呕吐袋！”</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep1_Scan() {
+            return `
+            <div class="scan-container">
+              <img class="scan-face" src="${userPhoto}" style="display:block;">
+              <div class="scan-line"></div>
+              <div class="scan-dot dot1"></div>
+              <div class="scan-dot dot2"></div>
+              <div class="scan-dot dot3"></div>
+            </div>
+            <p style="color:#ff4444;text-align:center;">扫描结果：颜值不达标，需强制美颜处理</p>
+          `;
+        }
+
+        function buildStep2_Beautify() {
+            return `
+            <div style="text-align:center;">
+              <p style="color:#8899aa;">系统自动为您P图...</p>
+              <img src="${userPhoto}" style="max-width:180px;border-radius:12px;filter:grayscale(0.5) hue-rotate(90deg) contrast(1.5);">
+              <p style="color:#ff4444;margin-top:10px;">美颜完成！当前颜值：<strong>${beautyScore + 10}</strong>（仍然为负）</p>
+              <p style="color:#8899aa;font-size:11px;">已自动添加：猪鼻子🐽 + 媒婆痣</p>
+            </div>
+          `;
+        }
+
+        function buildStep3_Cart() {
+            return `
+            <div style="text-align:center;font-size:60px;">🧺</div>
+            <div class="notification">
+              <div class="notification-text">
+                系统提示：您的颜值只能使用<strong>破篮子</strong><br>
+                （此篮子漏水漏底，请尽快购物）
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep4_Shelf() {
+            return `
+            <div class="shop-shelf" onclick="alert('矿泉水原价50分\\n检测到您的脸，自动涨价300%\\n现价200分（含精神损失费）')">
+              <div class="shelf-emoji">💧</div>
+              <div class="shelf-info"><div class="shelf-name">矿泉水</div><div class="shelf-price">50 → 200分</div></div>
+              <div class="shelf-status">余额不足</div>
+            </div>
+            <div class="shop-shelf" onclick="alert('方便面原价80分\\n系统：您连泡面都买不起')">
+              <div class="shelf-emoji">🍜</div>
+              <div class="shelf-info"><div class="shelf-name">方便面</div><div class="shelf-price">80分</div></div>
+              <div class="shelf-status">余额不足</div>
+            </div>
+            <div class="shop-shelf" onclick="alert('泥土：免费\\n建议您选择此项')">
+              <div class="shelf-emoji">🪨</div>
+              <div class="shelf-info"><div class="shelf-name">泥土（清仓）</div><div class="shelf-price">0分</div></div>
+              <div class="shelf-status">✅ 可购买</div>
+            </div>
+          `;
+        }
+
+        function buildStep5_Vegetable() {
+            return `
+            <div style="text-align:center;font-size:60px;">🥬</div>
+            <div class="notification">
+              <div class="notification-text">
+                ⚠️ 本区蔬菜看见您的脸后<strong>全部枯萎了</strong><br>
+                请赔偿菜农损失：<span style="color:#ff4444;">80颜值分</span><br>
+                <small>（您的余额不足，已记录在案）</small>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep6_Tasting() {
+            return `
+            <div style="text-align:center;font-size:60px;">🍢</div>
+            <div class="notification">
+              <div class="notification-text">
+                🚫 您已被列入<strong>试吃黑名单</strong><br>
+                原因：上次试吃太多，把其他顾客看吐了<br>
+                禁令有效期：<span style="color:#ff4444;">永久</span>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep7_Mirror() {
+            return `
+            <div style="text-align:center;font-size:60px;">🪞</div>
+            <div class="notification">
+              <div class="notification-text">
+                智能镜：<strong>“检测到异常物体...”</strong><br>
+                智能镜：<strong>“疑似需要重启...”</strong><br>
+                <span style="color:#8899aa;">（镜子已蓝屏死机）</span>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep8_Bystander() {
+            return `
+            <div class="notification">
+              <div class="notification-text">
+                🧑‍💼 路人A：<em>“妈妈那个人好丑...”</em><br>
+                🐕 路人B的狗：<em>“汪！（吓得躲进货架）”</em><br>
+                👶 小孩：<em>“哇——！（大哭）”</em>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep9_Security() {
+            return `
+            <div style="text-align:center;font-size:60px;">👮</div>
+            <div class="notification">
+              <div class="notification-text">
+                保安怀疑您<strong>不是人类</strong>，请配合调查<br><br>
+                <button class="btn btn-secondary btn-small" onclick="alert('您已承认是人类\\n保安：我不信')">我是人类</button>
+                <button class="btn btn-secondary btn-small" onclick="alert('您已承认是外星人\\n保安：我就知道！请去隔离区')">我承认我是外星人</button>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep10_Recharge() {
+            const needToZero = Math.abs(beautyScore);
+            const needToPass = 1000 - beautyScore;
+            return `
+            <div style="text-align:center;font-size:60px;">🏧</div>
+            <div class="notification">
+              <div class="notification-text">
+                充值汇率：<strong>¥1 = 10颜值分</strong><br><br>
+                达到0分需充值：<span style="color:#ff4444;">¥${(needToZero/10).toFixed(0)}</span><br>
+                达到及格线(1000分)需充值：<span style="color:#ff4444;">¥${(needToPass/10).toFixed(0)}</span><br><br>
+                <small>（建议直接放弃）</small>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep11_Toilet() {
+            return `
+            <div style="text-align:center;font-size:60px;">🚻</div>
+            <div class="notification">
+              <div class="notification-text">
+                厕所使用费：<strong>50颜值分</strong><br>
+                您的余额：<span style="color:#ff4444;">${beautyScore}分（不足）</span><br>
+                建议：<strong>去对面马路草丛解决</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep12_Discount() {
+            return `
+            <div class="step-title" style="color:#ff4444;">🏷️ 丑人专属特价区</div>
+            <div class="shop-shelf">
+              <div class="shelf-emoji">🧦</div>
+              <div class="shelf-info"><div class="shelf-name">破洞袜子</div><div class="shelf-price">1分</div></div>
+            </div>
+            <div class="shop-shelf">
+              <div class="shelf-emoji">🥫</div>
+              <div class="shelf-info"><div class="shelf-name">过期罐头</div><div class="shelf-price">2分</div></div>
+            </div>
+            <div class="shop-shelf">
+              <div class="shelf-emoji">🛞</div>
+              <div class="shelf-info"><div class="shelf-name">独轮车</div><div class="shelf-price">3分</div></div>
+            </div>
+          `;
+        }
+
+        function buildStep13_PK() {
+            return `
+            <div style="text-align:center;">
+              <p style="color:#fff;">🥊 颜值PK：您 VS 哈士奇</p>
+              <div style="display:flex;justify-content:center;gap:20px;margin:15px 0;">
+                <div><img src="${userPhoto}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;"><br><span style="color:#ff4444;">${beautyScore}分</span></div>
+                <div style="font-size:30px;">VS</div>
+                <div><span style="font-size:60px;">🐺</span><br><span style="color:#00ff88;">85分</span></div>
+              </div>
+              <p style="color:#ff4444;">狗赢了！获得赠品狗粮一袋</p>
+            </div>
+          `;
+        }
+
+        function buildStep14_Cashier() {
+            return `
+            <div style="text-align:center;font-size:60px;">💵</div>
+            <div class="notification">
+              <div class="notification-text">
+                收银员看到您后：<strong>“啊！我的眼睛！”</strong><br>
+                收银员已申请<strong>工伤假</strong><br>
+                请等待新收银员...<br>
+                <span style="color:#ff4444;">预计等待：999秒</span>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep15_PaymentFail() {
+            return `
+            <div style="text-align:center;font-size:60px;">💳</div>
+            <div class="notification">
+              <div class="notification-text">
+                刷脸支付中...<br>
+                ❌ 支付失败！<br>
+                ❌ 重试失败！POS机冒烟！<br>
+                ❌ POS机已彻底损坏<br>
+                <span style="color:#ff4444;">请照价赔偿POS机：¥3,000</span>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep16_Credit() {
+            return `
+            <div style="text-align:center;font-size:60px;">🤝</div>
+            <div class="notification">
+              <div class="notification-text">
+                申请赊账担保...<br>
+                需上传担保人照片<br>
+                <small>（使用同一张照片）</small><br><br>
+                审核结果：<span style="color:#ff4444;">担保人颜值同样不达标</span><br>
+                建议：<strong>找动物担保，动物颜值通常高于您</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep17_Captcha() {
+            return `
+            <div style="text-align:center;">
+              <p style="color:#fff;">🤖 请证明您是人类</p>
+              <p style="color:#8899aa;">题目：请找出下图中的帅哥/美女</p>
+              <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0;">
+                ${Array(9).fill(0).map(() => `<img src="${userPhoto}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;">`).join('')}
+              </div>
+              <p style="color:#ff4444;">提示：没有正确答案</p>
+              <button class="btn btn-secondary btn-small" onclick="alert('验证失败！您可能不是人类')">提交</button>
+            </div>
+          `;
+        }
+
+        function buildStep18_MemberCard() {
+            return `
+            <div style="text-align:center;font-size:60px;">🎫</div>
+            <div class="notification">
+              <div class="notification-title">💩 级会员黑卡</div>
+              <div class="notification-text">
+                权益：<br>
+                • 购物时需佩戴口罩+墨镜+帽子<br>
+                • 禁止出现在超市宣传照片中<br>
+                • 请保持2米社交距离<br>
+                • 优先使用自助收银（避免见人）
+              </div>
+            </div>
+          `;
+        }
+
+        function buildStep19_Exit() {
+            return `
+            <div style="text-align:center;font-size:60px;">🚪</div>
+            <div class="notification">
+              <div class="notification-text">
+                人脸识别闸机：<strong>“无法识别”</strong><br>
+                闸机：<strong>“疑似未登记物种，拒绝通行”</strong><br><br>
+                请走：<strong>员工通道后面的垃圾出口</strong><br>
+                <span style="color:#8899aa;">🗑️ →</span>
+              </div>
+            </div>
+          `;
+        }
+
+        function finishScene2() {
+            const container = document.getElementById('scene2Content');
+            container.innerHTML = `
+            <div class="step-title">📊 今日超市战报</div>
+            <div style="text-align:center;font-size:70px;">🏆</div>
+            <div class="notification">
+              <div class="notification-text" style="text-align:center;">
+                🎉 恭喜 <strong>${userName}</strong>！<br><br>
+                您创造了历史：<br>
+                首位被超市列入<strong>黑名单</strong>的顾客<br><br>
+                已被自动分享至<strong>全国超市联盟黑名单</strong><br><br>
+                下次购物建议：<strong>网购（别出门了）</strong>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="restartAll()">🔄 重新开始游戏</button>
+          `;
+            document.getElementById('gameContainer').scrollTop = document.getElementById('scene2Content').offsetTop;
+        }
+
+        function restartAll() {
+            userPhoto = null;
+            userName = '';
+            beautyScore = -250;
+            currentScene1Step = 1;
+            currentScene2Step = 0;
+            document.getElementById('nameInput').value = '';
+            document.getElementById('amountInput').value = '1000000';
+            document.getElementById('photoInput').value = '';
+            document.getElementById('scene1').classList.remove('hidden');
+            document.getElementById('scene2').classList.add('hidden');
+            hideAllScene1Steps();
+            document.getElementById('s1step1').classList.remove('hidden');
+            document.getElementById('gameContainer').scrollTop = 0;
+        }
+
+        console.log('张丹悲惨的一生');
+        console.log('');
+    </script>
+</body>
+</html>
